@@ -155,6 +155,32 @@ class CheckAttributesTest(TestCase):
             self.assertEqual(patterns.CheckAttributes(baz=1), f)
 
 
+class ObjectTest(TestCase):
+    def test_object(self):
+        class Foo(object):
+            def __init__(self):
+                self.foo = 1
+                self.bar = 'a'
+        f = Foo()
+
+        self.assertEqual(patterns.Object(Foo, foo=1), f)
+        self.assertEqual(patterns.Object(object, foo=1), f)
+        self.assertEqual(patterns.Object(Foo, bar='a'), f)
+        self.assertEqual(patterns.Object(Foo, foo=1, bar='a'), f)
+
+        f.foo = 2
+        with self.assertRaisesRegex(AssertionError, "is not an instance of <class 'int'>"):
+            self.assertEqual(patterns.Object(int, foo=1), f)
+        with self.assertRaisesRegex(AssertionError, '1 != 2'):
+            self.assertEqual(patterns.Object(Foo, foo=1), f)
+        with self.assertRaisesRegex(AssertionError, "'b' != 'a'"):
+            self.assertEqual(patterns.Object(Foo, bar='b'), f)
+        with self.assertRaisesRegex(AssertionError, '1 != 2'):
+            self.assertEqual(patterns.Object(Foo, bar='a', foo=1), f)
+        with self.assertRaisesRegex(AssertionError, ".* has no attribute 'baz'"):
+            self.assertEqual(patterns.Object(Foo, baz=1), f)
+
+
 class CallbackTest(TestCase):
     def test_callback(self):
         self.assertEqual(patterns.Callback(lambda x: x == 1), 1)

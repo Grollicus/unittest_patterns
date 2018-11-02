@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="unittest_patterns",
-    version="0.0.1",
+    version="0.0.2",
     author="Grollicus",
     description="Some helpers to match against complex data structures",
     long_description=long_description,

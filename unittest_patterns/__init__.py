@@ -98,6 +98,29 @@ class CheckAttributes(Pattern):
         return True
 
 
+class Object(Pattern):
+    """
+    `Object(class, **attributes)` equals every object that is an instance of `class` and
+     where each entry in  `**attributes` equals the attribute of the object with the same name.
+    It is a shortcut for `All(InstanceOf(class), CheckAttributes(**attributes))`.
+    """
+    def __init__(self, cls, **attributes):
+        self.cls = cls
+        self.attributes = attributes
+
+    def __eq__(self, rhs):
+        if not isinstance(rhs, self.cls):
+            raise AssertionError('%r is not an instance of %r' % (rhs, self.cls))
+
+        for (attr_name, expected_value) in self.attributes.items():
+            if not hasattr(rhs, attr_name):
+                raise AssertionError('%r has no attribute %r' % (rhs, attr_name))
+            current_value = getattr(rhs, attr_name)
+            if not (expected_value == current_value):
+                raise AssertionError('%r != %r' % (expected_value, current_value))
+        return True
+
+
 class Callback(Pattern):
     """ requires a callback as parameter. Equals everything for that the callback returns `True` """
     def __init__(self, function: callable):
